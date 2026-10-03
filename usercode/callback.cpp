@@ -1,0 +1,30 @@
+//
+// Created by zyfdx on 2026/10/3.
+//
+#include "main.h"
+#include "can_user.h"
+#include "motor.h"
+#include "can.h"
+Motor motor1(19.2f);
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    uint8_t rx_data[8];
+    if (hcan->Instance == CAN1)
+    {
+        if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0,&rx_header,rx_data)==HAL_OK)
+        {
+            motor1.canRxMsgCallback(rx_data);
+        }
+    }
+    //调用函数copy数据，放进队列里，保持函数简洁
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *hitm)
+{
+    motor1.setTxCurrent(0.0f,1);
+    if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1)>0)
+    {
+        HAL_CAN_AddTxMessage(&hcan1,&tx_header,motor1.data(),&can_tx_mailbox);
+    }
+}
