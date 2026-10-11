@@ -27,6 +27,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+    if (htim->Instance != TIM6) return;
     motor1.handle(target_angle,feedforward_speed,feedforward_intensity,2);
     if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan1)>0)
     {

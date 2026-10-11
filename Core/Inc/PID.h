@@ -10,7 +10,7 @@ class PID
 public:
     PID(float kp, float ki, float kd,float i_max,float out_max,float d_filter_k):
     kp_(kp),ki_(ki),kd_(kd),i_max_(i_max),out_max_(out_max),
-    d_filter_k_(d_filter_k),intergel(0.0),lasterror(0.0),dout(0.0f){}//outmax : 16384-20
+    d_filter_k_(d_filter_k),intergel(0.0f),lasterror(0.0f),dout(0.0f){}//outmax : 16384-20
     void reset();
     float calc(float ref,float fdb);
 private:

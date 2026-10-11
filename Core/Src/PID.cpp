@@ -19,6 +19,10 @@ float PID::calc(float ref,float fdb)
     dout=delta*d_filter_k_+(1-d_filter_k_)*dout;
     lasterror=error;
     float out=ki_*intergel+kd_*dout+kp_*error;
+    if (out>out_max_||out<-out_max_)
+    {
+        intergel-=error;
+    }
     out=std::clamp(out,-out_max_,out_max_);
     return out;
 }

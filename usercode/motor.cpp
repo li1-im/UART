@@ -60,24 +60,26 @@ uint8_t *Motor::getTxData() {
 
 void Motor::handle(float target_angle,float feedforward_speed,float feedforward_intensity,uint8_t motor_id)
 {
-    if (HAL_GetTick()-last_receive>20)
+    if (first_receive||HAL_GetTick()-last_receive>20)
     {
         current_output=0.0f;
-        setTxCurrent(current_output,motor_id);
-        return;
+        reset();
     }
-    switch (mode_)
+    else
     {
-    case POSITION_SPEED:
-        current_output=spid_.calc(ppid_.calc(target_angle,angle())+feedforward_speed,
-            speeddps())+feedforward_intensity;
-        break;
-    case SPEED:
-        current_output=spid_.calc(target_angle,speeddps())+feedforward_intensity;
-        break;
-    case TOQUE:
-        current_output=target_angle;
-        break;//注意target_angle复用
+        switch (mode_)
+        {
+        case POSITION_SPEED:
+            current_output=spid_.calc(ppid_.calc(target_angle,angle())+feedforward_speed,
+                speeddps())+feedforward_intensity;
+            break;
+        case SPEED:
+            current_output=spid_.calc(target_angle,speeddps())+feedforward_intensity;
+            break;
+        case TOQUE:
+            current_output=target_angle;
+            break;//注意target_angle复用
+        }
+        setTxCurrent(current_output,motor_id);
     }
-    setTxCurrent(current_output,motor_id);
 }
