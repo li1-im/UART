@@ -23,12 +23,17 @@ class Motor
         float speedRpm() const {return speedRpm_;}
         float currentAmps() const {return currentA_;}
         float temperature() const {return tempC_;}
+        float currentOutput() const {return current_output;}
         uint8_t *data() {return tx_data_;};
         void setTxCurrent(float amperes,uint8_t motor_id);
         void handle(float target_angle,float feedforward_speed,float feedforward_intensity,uint8_t motor_id);
+        void setGains(float pp_kp,float pp_ki,float pp_kd,float sp_kp,float sp_ki,float sp_kd);
+        void setLimits(float pp_imax,float pp_outmax,float pp_dfilt,
+                       float sp_imax,float sp_outmax,float sp_dfilt);
         void reset(){ppid_.reset();spid_.reset();}
-        uint8_t* getTxData();
+        void stop();
         bool first_receive=true;
+        void setMode(Mode mode){mode_=mode;}
     private:
         const float ratio_;
         float ecd_angle_=0;

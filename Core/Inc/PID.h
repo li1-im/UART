@@ -13,6 +13,9 @@ public:
     d_filter_k_(d_filter_k),intergel(0.0f),lasterror(0.0f),dout(0.0f){}//outmax : 16384-20
     void reset();
     float calc(float ref,float fdb);
+    void setGains(float kp,float ki,float kd);
+    void setLimits(float i_max,float out_max,float d_filter_k);//实时改参数
+    float doutValue() const {return dout;}//读取dout
 private:
     float kp_;
     float ki_;
