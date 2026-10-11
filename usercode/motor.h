@@ -19,7 +19,7 @@ class Motor
         Motor(float ratio,PID& ppid,PID& spid,Mode mode):ratio_(ratio),ppid_(ppid),spid_(spid),mode_(mode){};
         void canRxMsgCallback(const uint8_t rx_data[8]);
         float angle() const {return angle_;}
-        float speeddps();
+        float speeddps() const;
         float speedRpm() const {return speedRpm_;}
         float currentAmps() const {return currentA_;}
         float temperature() const {return tempC_;}
@@ -28,6 +28,7 @@ class Motor
         void handle(float target_angle,float feedforward_speed,float feedforward_intensity,uint8_t motor_id);
         void reset(){ppid_.reset();spid_.reset();}
         uint8_t* getTxData();
+        bool first_receive=true;
     private:
         const float ratio_;
         float ecd_angle_=0;
@@ -42,6 +43,6 @@ class Motor
         Mode mode_;
         float current_output=0;
         static constexpr uint16_t kEncoderRange =8192;
-
+        uint32_t last_receive=0;
 };
 #endif //CAN_MOTOR_H

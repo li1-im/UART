@@ -3,12 +3,15 @@
 //
 #include "motor.h"
 
-float Motor::speeddps()
+#include "stm32f4xx_hal.h"
+
+float Motor::speeddps() const
 {
     return speedRpm_*360.0f/60.0f/ratio_;
 }
 void Motor::canRxMsgCallback(const uint8_t rx_data[8])
 {
+    last_receive=HAL_GetTick();
     uint16_t raw_ecd= static_cast<uint16_t>(rx_data[0] << 8 | rx_data[1]);
     int16_t raw_speed= static_cast<int16_t>(rx_data[2] << 8 | rx_data[3]);
     int16_t raw_current= static_cast<int16_t>(rx_data[4] << 8 | rx_data[5]);
@@ -16,6 +19,11 @@ void Motor::canRxMsgCallback(const uint8_t rx_data[8])
     speedRpm_=static_cast<float>(raw_speed);
     currentA_=static_cast<float>(raw_current) * 20.0f / 16384.0f;
     tempC_=static_cast<float>(rx_data[6]);
+    if (first_receive)
+    {
+        last_ecd_=ecd_angle_;
+        first_receive=false;
+    }
     float delta = ecd_angle_ - last_ecd_;
     if (delta>kEncoderRange / 2.0f)
     {
@@ -52,6 +60,12 @@ uint8_t *Motor::getTxData() {
 
 void Motor::handle(float target_angle,float feedforward_speed,float feedforward_intensity,uint8_t motor_id)
 {
+    if (HAL_GetTick()-last_receive>20)
+    {
+        current_output=0.0f;
+        setTxCurrent(current_output,motor_id);
+        return;
+    }
     switch (mode_)
     {
     case POSITION_SPEED:
